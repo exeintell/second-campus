@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 
 /**
  * On GitHub Pages (static export), pre-rendered pages use placeholder params (_).
@@ -10,6 +10,7 @@ import { useParams } from 'next/navigation'
 export function useRouteParam(paramName: string, segmentName: string): string {
   const params = useParams()
   const fromRouter = params[paramName] as string
+  const pathname = usePathname()
   const [value, setValue] = useState(fromRouter)
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export function useRouteParam(paramName: string, segmentName: string): string {
     if (match && match[1] !== '_') {
       setValue(match[1])
     }
-  }, [fromRouter, paramName, segmentName])
+  }, [fromRouter, paramName, segmentName, pathname])
 
   return value
 }

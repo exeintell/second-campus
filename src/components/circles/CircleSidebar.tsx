@@ -9,7 +9,7 @@ import { useChannels } from '@/hooks/useChannels'
 import { CreateChannelDialog } from '@/components/channels/CreateChannelDialog'
 import { DeleteChannelDialog } from '@/components/channels/DeleteChannelDialog'
 
-export function CircleSidebar({ circleId }: { circleId: string }) {
+export function CircleSidebar({ circleId, onNavigate }: { circleId: string; onNavigate?: () => void }) {
   const { circle, channels, myChannelIds, loading, refetch } = useCircleContext()
   const { user } = useAuth()
   const { createChannel, deleteChannel, joinChannel } = useChannels()
@@ -71,6 +71,7 @@ export function CircleSidebar({ circleId }: { circleId: string }) {
           <Link
             href={`/circles/${circleId}/channels/${channel.id}`}
             className="flex items-center gap-2 flex-1 min-w-0"
+            onClick={onNavigate}
           >
             <span className="text-neutral-400">
               {channel.is_private ? (
