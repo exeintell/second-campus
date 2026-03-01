@@ -46,23 +46,30 @@ export function useProfile() {
   const uploadAvatar = async (file: File) => {
     if (!user) throw new Error('Not authenticated')
 
-    // Debug: check session
     const { data: sessionData } = await supabase.auth.getSession()
-    console.log('[avatar] session:', sessionData.session ? 'valid' : 'null', 'user:', user.id)
+    const token = sessionData.session?.access_token
+    console.log('[avatar] session:', token ? 'valid' : 'null', 'user:', user.id)
 
     const ext = file.name.split('.').pop()
     const path = `${user.id}/avatar.${ext}`
 
     // Delete existing avatar first (ignore errors if not found)
-    const { error: removeError } = await supabase.storage.from('avatars').remove([path])
-    console.log('[avatar] remove:', removeError?.message ?? 'ok')
+    await supabase.storage.from('avatars').remove([path])
 
-    // Upload new avatar
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(path, file)
-    console.log('[avatar] upload:', uploadError ? JSON.stringify(uploadError) : 'ok')
-    if (uploadError) throw uploadError
+    // Upload via raw fetch to bypass supabase-js storage client
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    const res = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${path}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'apikey': anonKey,
+      },
+      body: file,
+    })
+    const result = await res.json()
+    console.log('[avatar] raw fetch:', res.status, JSON.stringify(result))
+    if (!res.ok) throw new Error(result.message || 'Upload failed')
 
     const { data: urlData } = supabase.storage
       .from('avatars')
