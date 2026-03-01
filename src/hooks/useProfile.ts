@@ -75,21 +75,14 @@ export function useProfile() {
     const ext = file.name.split('.').pop()
     const path = `${user.id}/avatar.${ext}`
 
-    // Use signed upload URL to bypass potential JWT/upload endpoint issues
-    const { data: signedData, error: signError } = await supabase.storage
-      .from('avatars')
-      .createSignedUploadUrl(path, { upsert: true })
-    console.log('[avatar] signed url:', signError ? JSON.stringify(signError) : signedData?.signedUrl?.slice(0, 80) + '...')
+    // Delete existing avatar first (ignore errors)
+    await supabase.storage.from('avatars').remove([path])
 
-    if (signError || !signedData) {
-      throw new Error(signError?.message || 'Failed to create upload URL')
-    }
-
-    // Upload using the signed URL
+    // Upload new avatar
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .uploadToSignedUrl(path, signedData.token, file, { upsert: true })
-    console.log('[avatar] upload result:', uploadError ? JSON.stringify(uploadError) : 'ok')
+      .upload(path, file, { upsert: true })
+    console.log('[avatar] upload:', uploadError ? JSON.stringify(uploadError) : 'ok')
     if (uploadError) throw uploadError
 
     const { data: urlData } = supabase.storage
