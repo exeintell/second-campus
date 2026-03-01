@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import Image from 'next/image'
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
@@ -114,7 +113,8 @@ function ProfileContent() {
           </label>
           <div className="flex items-center gap-4">
             {previewUrl ? (
-              <Image src={previewUrl} alt="preview" width={64} height={64} className="w-16 h-16 rounded-full object-cover" unoptimized />
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={previewUrl} alt="preview" className="w-16 h-16 rounded-full object-cover" />
             ) : (
               <UserAvatar username={username} avatarUrl={avatarUrl} size="lg" className="!w-16 !h-16 !text-xl" />
             )}
