@@ -4,6 +4,7 @@ import { useCircleContext } from '@/components/circles/CircleProvider'
 import { MemberList } from '@/components/circles/MemberList'
 import { InviteCodeDisplay } from '@/components/circles/InviteCodeDisplay'
 import { JoinRequestList } from '@/components/circles/JoinRequestList'
+import { EventList } from '@/components/events/EventList'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function CircleOverviewClient() {
@@ -61,6 +62,9 @@ export default function CircleOverviewClient() {
         </h2>
         <MemberList />
       </div>
+
+      {/* Events Section */}
+      <EventList circleId={circle.id} />
 
       {/* Owner: Invite Code & Join Requests */}
       {isOwner && (
