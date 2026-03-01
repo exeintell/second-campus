@@ -73,12 +73,18 @@ export function useProfile() {
     })
     console.log('[avatar] list files:', listRes.status, await listRes.text())
 
-    // Test: minimal blob upload
+    // Test: upload to a DIFFERENT bucket (test-upload)
     const testBlob = new Blob(['hello'], { type: 'text/plain' })
     const { error: testErr } = await supabase.storage
+      .from('test-upload')
+      .upload('test.txt', testBlob, { upsert: true })
+    console.log('[avatar] test-upload bucket:', testErr ? JSON.stringify(testErr) : 'ok')
+
+    // Test: upload to avatars bucket root (no subfolder)
+    const { error: rootErr } = await supabase.storage
       .from('avatars')
-      .upload(`${user.id}/test.txt`, testBlob, { upsert: true })
-    console.log('[avatar] test blob upload:', testErr ? JSON.stringify(testErr) : 'ok')
+      .upload('test.txt', testBlob, { upsert: true })
+    console.log('[avatar] avatars root upload:', rootErr ? JSON.stringify(rootErr) : 'ok')
 
     const ext = file.name.split('.').pop()
     const path = `${user.id}/avatar.${ext}`
