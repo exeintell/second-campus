@@ -46,9 +46,9 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'SECOCAM';
   const options = {
     body: data.body || '',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
-    data: { url: data.url || '/circles' },
+    icon: '/second-campus/icons/icon-192.png',
+    badge: '/second-campus/icons/icon-192.png',
+    data: { url: data.url || '/second-campus/circles' },
     tag: data.tag || 'secocam-notification',
   };
 
@@ -59,7 +59,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const url = event.notification.data?.url || '/circles';
+  const url = event.notification.data?.url || '/second-campus/circles';
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
