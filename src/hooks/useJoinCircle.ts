@@ -9,6 +9,14 @@ type Circle = Database['public']['Tables']['circles']['Row']
 
 type SearchResult = Pick<Circle, 'id' | 'name' | 'description'>
 
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error) return err.message
+  if (typeof err === 'object' && err !== null && 'message' in err) {
+    return (err as { message: string }).message
+  }
+  return fallback
+}
+
 export function useJoinCircle() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
@@ -30,8 +38,7 @@ export function useJoinCircle() {
         if (rpcError) throw rpcError
         return data as string
       } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : '参加に失敗しました'
+        const message = getErrorMessage(err, '参加に失敗しました')
         setError(message)
         throw err
       } finally {
@@ -80,8 +87,7 @@ export function useJoinCircle() {
           throw insertError
         }
       } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : '申請に失敗しました'
+        const message = getErrorMessage(err, '申請に失敗しました')
         setError(message)
         throw err
       } finally {

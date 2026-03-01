@@ -84,7 +84,11 @@ export function CircleSearchDialog({
       setRequestStatuses((prev) => ({ ...prev, [circleId]: 'pending' }))
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : '申請に失敗しました'
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' && err !== null && 'message' in err
+            ? (err as { message: string }).message
+            : '申請に失敗しました'
       setError(message)
     }
   }

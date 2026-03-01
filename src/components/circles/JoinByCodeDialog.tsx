@@ -30,7 +30,11 @@ export function JoinByCodeDialog({ open, onClose }: JoinByCodeDialogProps) {
       router.push(`/circles/${circleId}`)
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : '参加に失敗しました'
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' && err !== null && 'message' in err
+            ? (err as { message: string }).message
+            : '参加に失敗しました'
       setError(
         message.includes('Invalid invite code')
           ? '無効な招待コードです'
