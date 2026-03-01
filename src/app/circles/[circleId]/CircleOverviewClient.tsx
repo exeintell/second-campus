@@ -2,9 +2,15 @@
 
 import { useCircleContext } from '@/components/circles/CircleProvider'
 import { MemberList } from '@/components/circles/MemberList'
+import { InviteCodeDisplay } from '@/components/circles/InviteCodeDisplay'
+import { JoinRequestList } from '@/components/circles/JoinRequestList'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function CircleOverviewClient() {
   const { circle, channels, members, loading } = useCircleContext()
+  const { user } = useAuth()
+
+  const isOwner = user && circle && circle.owner_id === user.id
 
   if (loading) {
     return (
@@ -55,6 +61,17 @@ export default function CircleOverviewClient() {
         </h2>
         <MemberList />
       </div>
+
+      {/* Owner: Invite Code & Join Requests */}
+      {isOwner && (
+        <div className="mt-8 space-y-4">
+          <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-100">
+            管理
+          </h2>
+          <InviteCodeDisplay circleId={circle.id} />
+          <JoinRequestList circleId={circle.id} />
+        </div>
+      )}
     </div>
   )
 }

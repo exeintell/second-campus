@@ -28,10 +28,23 @@ export function useCircles() {
     setLoading(true)
     setError(null)
 
-    // RLS on circles table filters to only circles the user belongs to
+    // Explicitly filter by membership (broad SELECT policy exists for search)
+    const { data: memberData } = await supabase
+      .from('circle_members')
+      .select('circle_id')
+      .eq('user_id', user.id)
+
+    const circleIds = memberData?.map((m) => m.circle_id) || []
+    if (circleIds.length === 0) {
+      setCircles([])
+      setLoading(false)
+      return
+    }
+
     const { data, error: fetchError } = await supabase
       .from('circles')
       .select('*, circle_members(count), channels(count)')
+      .in('id', circleIds)
       .order('created_at', { ascending: false })
 
     if (fetchError) {
@@ -45,6 +58,7 @@ export function useCircles() {
       name: c.name,
       description: c.description,
       owner_id: c.owner_id,
+      invite_code: c.invite_code,
       created_at: c.created_at,
       updated_at: c.updated_at,
       member_count: c.circle_members?.[0]?.count ?? 0,

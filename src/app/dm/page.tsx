@@ -21,7 +21,8 @@ export default function DMPage() {
 
   const selectedConversation = conversations.find((c) => c.id === selectedConversationId)
 
-  const formatTime = (dateStr: string) => {
+  const formatTime = (dateStr: string | null) => {
+    if (!dateStr) return ''
     const date = new Date(dateStr)
     const now = new Date()
     const diff = now.getTime() - date.getTime()

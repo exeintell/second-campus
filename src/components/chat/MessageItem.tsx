@@ -6,7 +6,7 @@ interface MessageItemProps {
 }
 
 export function MessageItem({ message, isOwn }: MessageItemProps) {
-  const time = new Date(message.created_at).toLocaleTimeString('ja-JP', {
+  const time = new Date(message.created_at ?? '').toLocaleTimeString('ja-JP', {
     hour: '2-digit',
     minute: '2-digit',
   })

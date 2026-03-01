@@ -5,10 +5,14 @@ import { ProtectedRoute } from '@/components/ui/ProtectedRoute'
 import { useCircles } from '@/hooks/useCircles'
 import { CircleCard } from '@/components/circles/CircleCard'
 import { CreateCircleDialog } from '@/components/circles/CreateCircleDialog'
+import { JoinByCodeDialog } from '@/components/circles/JoinByCodeDialog'
+import { CircleSearchDialog } from '@/components/circles/CircleSearchDialog'
 
 export default function CirclesPage() {
-  const { circles, loading, error, createCircle } = useCircles()
+  const { circles, loading, error, createCircle, refetch } = useCircles()
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [showJoinCodeDialog, setShowJoinCodeDialog] = useState(false)
+  const [showSearchDialog, setShowSearchDialog] = useState(false)
 
   return (
     <ProtectedRoute>
@@ -24,12 +28,26 @@ export default function CirclesPage() {
                 あなたが参加しているサークル一覧
               </p>
             </div>
-            <button
-              onClick={() => setShowCreateDialog(true)}
-              className="px-5 py-2.5 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-lg transition-colors text-sm"
-            >
-              + 新規作成
-            </button>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setShowJoinCodeDialog(true)}
+                className="px-4 py-2.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg transition-colors border border-surface-200 dark:border-surface-800"
+              >
+                招待コードで参加
+              </button>
+              <button
+                onClick={() => setShowSearchDialog(true)}
+                className="px-4 py-2.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg transition-colors border border-surface-200 dark:border-surface-800"
+              >
+                サークルを探す
+              </button>
+              <button
+                onClick={() => setShowCreateDialog(true)}
+                className="px-5 py-2.5 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-lg transition-colors text-sm"
+              >
+                + 新規作成
+              </button>
+            </div>
           </div>
 
           {/* Loading */}
@@ -101,6 +119,22 @@ export default function CirclesPage() {
         open={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
         onSubmit={createCircle}
+      />
+
+      <JoinByCodeDialog
+        open={showJoinCodeDialog}
+        onClose={() => {
+          setShowJoinCodeDialog(false)
+          refetch()
+        }}
+      />
+
+      <CircleSearchDialog
+        open={showSearchDialog}
+        onClose={() => {
+          setShowSearchDialog(false)
+          refetch()
+        }}
       />
     </ProtectedRoute>
   )

@@ -8,8 +8,8 @@ export interface ConversationWithUser {
   id: string
   user_id_1: string
   user_id_2: string
-  created_at: string
-  updated_at: string
+  created_at: string | null
+  updated_at: string | null
   partner: {
     id: string
     username: string | null
@@ -17,7 +17,7 @@ export interface ConversationWithUser {
   }
   last_message: {
     content: string
-    created_at: string
+    created_at: string | null
   } | null
 }
 
@@ -79,7 +79,7 @@ export function useConversations() {
       .order('created_at', { ascending: false })
 
     // Group by conversation_id, take first (latest) per conversation
-    const latestMap = new Map<string, { content: string; created_at: string }>()
+    const latestMap = new Map<string, { content: string; created_at: string | null }>()
     for (const msg of latestMessages || []) {
       if (!latestMap.has(msg.conversation_id)) {
         latestMap.set(msg.conversation_id, {
@@ -105,8 +105,8 @@ export function useConversations() {
 
     // Sort by latest message time (conversations with recent messages first)
     result.sort((a, b) => {
-      const aTime = a.last_message?.created_at ?? a.updated_at
-      const bTime = b.last_message?.created_at ?? b.updated_at
+      const aTime = a.last_message?.created_at ?? a.updated_at ?? ''
+      const bTime = b.last_message?.created_at ?? b.updated_at ?? ''
       return new Date(bTime).getTime() - new Date(aTime).getTime()
     })
 
