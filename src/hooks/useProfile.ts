@@ -46,32 +46,14 @@ export function useProfile() {
   const uploadAvatar = async (file: File) => {
     if (!user) throw new Error('Not authenticated')
 
-    const blob = new Blob([file], { type: file.type })
-    const uid = user.id
-    const uidNoHyphens = uid.replace(/-/g, '')
-    const shortId = uid.slice(0, 8)
     const ext = file.name.split('.').pop()
+    // Use UUID without hyphens to avoid Supabase Storage issue with hyphens in filenames
+    const safeId = user.id.replace(/-/g, '')
+    const path = `avatar_${safeId}.${ext}`
 
-    // Test 1: full UUID with hyphens
-    const { error: e1 } = await supabase.storage.from('avatars').upload(`t1_${uid}.${ext}`, blob, { upsert: true })
-    console.log('[test] full UUID:', e1 ? e1.message : 'ok')
-
-    // Test 2: UUID without hyphens
-    const { error: e2 } = await supabase.storage.from('avatars').upload(`t2_${uidNoHyphens}.${ext}`, blob, { upsert: true })
-    console.log('[test] no hyphens:', e2 ? e2.message : 'ok')
-
-    // Test 3: short ID (8 chars)
-    const { error: e3 } = await supabase.storage.from('avatars').upload(`t3_${shortId}.${ext}`, blob, { upsert: true })
-    console.log('[test] short ID:', e3 ? e3.message : 'ok')
-
-    // Test 4: just simple name
-    const { error: e4 } = await supabase.storage.from('avatars').upload(`t4_simple.${ext}`, blob, { upsert: true })
-    console.log('[test] simple:', e4 ? e4.message : 'ok')
-
-    // Use whichever works
-    const path = `t4_simple.${ext}`
-    // Placeholder - will fix after test results
-    const { error: uploadError } = e4 ? { error: e4 } : { error: null }
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true })
     if (uploadError) throw uploadError
 
     const { data: urlData } = supabase.storage
@@ -92,10 +74,10 @@ export function useProfile() {
   const removeAvatar = async () => {
     if (!user) throw new Error('Not authenticated')
 
-    // Find avatar files for this user
+    const safeId = user.id.replace(/-/g, '')
     const { data: files } = await supabase.storage
       .from('avatars')
-      .list('', { search: `avatar_${user.id}` })
+      .list('', { search: `avatar_${safeId}` })
 
     if (files && files.length > 0) {
       const paths = files.map((f) => f.name)
