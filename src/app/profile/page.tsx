@@ -58,9 +58,10 @@ function ProfileContent() {
       await uploadAvatar(file)
       setPreviewUrl(null)
       setMessage({ type: 'success', text: 'アバターを更新しました' })
-    } catch {
+    } catch (err) {
       setPreviewUrl(null)
-      setMessage({ type: 'error', text: 'アバターのアップロードに失敗しました' })
+      const detail = err instanceof Error ? err.message : ''
+      setMessage({ type: 'error', text: `アバターのアップロードに失敗しました${detail ? `: ${detail}` : ''}` })
     } finally {
       setSaving(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
