@@ -67,9 +67,11 @@ export function useNotificationsState(): NotificationContextType {
   }, [user])
 
   const markAsRead = useCallback(async (id: string) => {
+    if (!user) return
     const { error } = await supabase.from('notifications')
       .update({ is_read: true })
       .eq('id', id)
+      .eq('user_id', user.id)
 
     if (!error) {
       setNotifications(prev =>
@@ -77,7 +79,7 @@ export function useNotificationsState(): NotificationContextType {
       )
       setUnreadCount(prev => Math.max(0, prev - 1))
     }
-  }, [])
+  }, [user])
 
   const markAllAsRead = useCallback(async () => {
     const { error } = await supabase.rpc('mark_all_notifications_read')
@@ -137,9 +139,16 @@ export function useNotificationsState(): NotificationContextType {
         },
         (payload) => {
           const updated = payload.new as NotificationRow
+          const old = payload.old as Partial<NotificationRow>
           setNotifications(prev =>
             prev.map(n => n.id === updated.id ? { ...n, ...updated } : n)
           )
+          // Update unreadCount when is_read changes
+          if (old.is_read === false && updated.is_read === true) {
+            setUnreadCount(prev => Math.max(0, prev - 1))
+          } else if (old.is_read === true && updated.is_read === false) {
+            setUnreadCount(prev => prev + 1)
+          }
         }
       )
       .subscribe()
