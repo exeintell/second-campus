@@ -48,27 +48,45 @@ export function useProfile() {
 
     const { data: sessionData } = await supabase.auth.getSession()
     const token = sessionData.session?.access_token
-    console.log('[avatar] session:', token ? 'valid' : 'null', 'user:', user.id)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    console.log('[avatar] url:', supabaseUrl)
+    console.log('[avatar] anon key:', anonKey?.slice(0, 20) + '...')
+    console.log('[avatar] token:', token?.slice(0, 20) + '...')
+
+    // Test: can user list buckets?
+    const bucketsRes = await fetch(`${supabaseUrl}/storage/v1/bucket`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'apikey': anonKey },
+    })
+    console.log('[avatar] list buckets:', bucketsRes.status, await bucketsRes.text())
+
+    // Test: can user list files in avatars bucket?
+    const listRes = await fetch(`${supabaseUrl}/storage/v1/object/list/avatars`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'apikey': anonKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prefix: '', limit: 10 }),
+    })
+    console.log('[avatar] list files:', listRes.status, await listRes.text())
 
     const ext = file.name.split('.').pop()
     const path = `${user.id}/avatar.${ext}`
 
-    // Delete existing avatar first (ignore errors if not found)
-    await supabase.storage.from('avatars').remove([path])
-
-    // Upload via raw fetch to bypass supabase-js storage client
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    // Upload
     const res = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${path}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'apikey': anonKey,
+        'Content-Type': file.type,
       },
       body: file,
     })
     const result = await res.json()
-    console.log('[avatar] raw fetch:', res.status, JSON.stringify(result))
+    console.log('[avatar] upload:', res.status, JSON.stringify(result))
     if (!res.ok) throw new Error(result.message || 'Upload failed')
 
     const { data: urlData } = supabase.storage

@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Header } from "@/components/ui/Header";
 import { SPARedirectHandler } from "@/components/SPARedirectHandler";
+import { NotificationProvider } from "@/components/notifications/NotificationProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,9 +54,11 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AuthProvider>
-            <SPARedirectHandler />
-            <Header />
-            {children}
+            <NotificationProvider>
+              <SPARedirectHandler />
+              <Header />
+              {children}
+            </NotificationProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
