@@ -74,39 +74,23 @@ export function useProfile() {
 
     const ext = file.name.split('.').pop()
     const path = `${user.id}/avatar.${ext}`
-    console.log('[avatar] file type:', file.type, 'size:', file.size)
 
-    // Try 1: FormData upload (how supabase-js does it)
-    const formData = new FormData()
-    formData.append('', file)
-    const res = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${path}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'apikey': anonKey,
-        'x-upsert': 'true',
-      },
-      body: formData,
-    })
-    const result = await res.json()
-    console.log('[avatar] upload formdata:', res.status, JSON.stringify(result))
+    // Use signed upload URL to bypass potential JWT/upload endpoint issues
+    const { data: signedData, error: signError } = await supabase.storage
+      .from('avatars')
+      .createSignedUploadUrl(path, { upsert: true })
+    console.log('[avatar] signed url:', signError ? JSON.stringify(signError) : signedData?.signedUrl?.slice(0, 80) + '...')
 
-    if (!res.ok) {
-      // Try 2: raw body upload
-      const res2 = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${path}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'apikey': anonKey,
-          'Content-Type': file.type || 'application/octet-stream',
-          'x-upsert': 'true',
-        },
-        body: file,
-      })
-      const result2 = await res2.json()
-      console.log('[avatar] upload raw:', res2.status, JSON.stringify(result2))
-      if (!res2.ok) throw new Error(result2.message || 'Upload failed')
+    if (signError || !signedData) {
+      throw new Error(signError?.message || 'Failed to create upload URL')
     }
+
+    // Upload using the signed URL
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .uploadToSignedUrl(path, signedData.token, file, { upsert: true })
+    console.log('[avatar] upload result:', uploadError ? JSON.stringify(uploadError) : 'ok')
+    if (uploadError) throw uploadError
 
     const { data: urlData } = supabase.storage
       .from('avatars')
