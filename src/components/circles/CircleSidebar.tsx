@@ -91,7 +91,7 @@ export function CircleSidebar({ circleId }: { circleId: string }) {
           <button
             onClick={() => handleJoinChannel(channel.id)}
             disabled={joining === channel.id}
-            className="hidden group-hover:flex px-2 py-0.5 text-[10px] font-semibold bg-accent-500 hover:bg-accent-600 disabled:opacity-50 text-white rounded transition-colors shrink-0"
+            className="flex sm:hidden sm:group-hover:flex px-2 py-0.5 text-[10px] font-semibold bg-accent-500 hover:bg-accent-600 disabled:opacity-50 text-white rounded transition-colors shrink-0"
           >
             {joining === channel.id ? '...' : '参加'}
           </button>
@@ -102,7 +102,7 @@ export function CircleSidebar({ circleId }: { circleId: string }) {
               e.preventDefault()
               setDeleteTarget({ id: channel.id, name: channel.name })
             }}
-            className="hidden group-hover:flex w-5 h-5 items-center justify-center rounded text-neutral-400 hover:text-red-500 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors shrink-0"
+            className="flex sm:hidden sm:group-hover:flex w-5 h-5 items-center justify-center rounded text-neutral-400 hover:text-red-500 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors shrink-0"
             title="チャンネルを削除"
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

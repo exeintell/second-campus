@@ -1,15 +1,22 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useCircleContext } from '@/components/circles/CircleProvider'
 import { MemberList } from '@/components/circles/MemberList'
 import { InviteCodeDisplay } from '@/components/circles/InviteCodeDisplay'
 import { JoinRequestList } from '@/components/circles/JoinRequestList'
+import { DeleteCircleDialog } from '@/components/circles/DeleteCircleDialog'
 import { EventList } from '@/components/events/EventList'
 import { useAuth } from '@/hooks/useAuth'
+import { useCircles } from '@/hooks/useCircles'
 
 export default function CircleOverviewClient() {
   const { circle, channels, members, loading } = useCircleContext()
   const { user } = useAuth()
+  const { deleteCircle } = useCircles()
+  const router = useRouter()
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const isOwner = user && circle && circle.owner_id === user.id
 
@@ -74,8 +81,30 @@ export default function CircleOverviewClient() {
           </h2>
           <InviteCodeDisplay circleId={circle.id} />
           <JoinRequestList circleId={circle.id} />
+
+          {/* Danger Zone */}
+          <div className="mt-6 pt-6 border-t border-surface-200 dark:border-surface-800">
+            <h3 className="text-sm font-semibold text-red-500 mb-3">危険な操作</h3>
+            <button
+              onClick={() => setDeleteOpen(true)}
+              className="px-4 py-2 text-sm font-medium text-red-500 border border-red-300 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
+            >
+              サークルを削除
+            </button>
+          </div>
         </div>
       )}
+
+      {/* Delete Circle Dialog */}
+      <DeleteCircleDialog
+        open={deleteOpen}
+        circleName={circle.name}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={async () => {
+          await deleteCircle(circle.id)
+          router.push('/circles')
+        }}
+      />
     </div>
   )
 }

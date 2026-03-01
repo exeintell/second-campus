@@ -105,5 +105,19 @@ export function useCircles() {
     return circle
   }
 
-  return { circles, loading, error, createCircle, refetch: fetchCircles }
+  const deleteCircle = async (circleId: string) => {
+    if (!user) throw new Error('Not authenticated')
+
+    const { error: deleteError } = await supabase
+      .from('circles')
+      .delete()
+      .eq('id', circleId)
+      .eq('owner_id', user.id)
+
+    if (deleteError) throw deleteError
+
+    await fetchCircles()
+  }
+
+  return { circles, loading, error, createCircle, deleteCircle, refetch: fetchCircles }
 }
