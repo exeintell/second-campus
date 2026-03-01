@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 
 const sizeClasses = {
@@ -21,11 +22,12 @@ interface UserAvatarProps {
 }
 
 export function UserAvatar({ username, avatarUrl, size = 'md', className = '' }: UserAvatarProps) {
+  const [imgError, setImgError] = useState(false)
   const sizeClass = sizeClasses[size]
   const px = sizePx[size]
   const initial = (username || '?').charAt(0).toUpperCase()
 
-  if (avatarUrl) {
+  if (avatarUrl && !imgError) {
     return (
       <Image
         src={avatarUrl}
@@ -34,6 +36,7 @@ export function UserAvatar({ username, avatarUrl, size = 'md', className = '' }:
         height={px}
         className={`${sizeClass.split(' ').slice(0, 2).join(' ')} rounded-full object-cover shrink-0 ${className}`}
         unoptimized
+        onError={() => setImgError(true)}
       />
     )
   }
