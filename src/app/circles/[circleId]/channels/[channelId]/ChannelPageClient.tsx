@@ -1,16 +1,15 @@
 'use client'
 
-import { useParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useRealtimeMessages } from '@/hooks/useRealtimeMessages'
 import { useSendMessage } from '@/hooks/useSendMessage'
 import { useCircleContext } from '@/components/circles/CircleProvider'
 import { MessageList } from '@/components/chat/MessageList'
 import { MessageInput } from '@/components/chat/MessageInput'
+import { useRouteParam } from '@/hooks/useRouteParam'
 
 export default function ChannelPageClient() {
-  const params = useParams()
-  const channelId = params.channelId as string
+  const channelId = useRouteParam('channelId', 'channels')
   const { user } = useAuth()
   const { channels } = useCircleContext()
   const { messages, loading, error } = useRealtimeMessages(channelId)

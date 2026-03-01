@@ -1,18 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams } from 'next/navigation'
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute'
 import { CircleProvider } from '@/components/circles/CircleProvider'
 import { CircleSidebar } from '@/components/circles/CircleSidebar'
+import { useRouteParam } from '@/hooks/useRouteParam'
 
 export default function CircleLayoutClient({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const params = useParams()
-  const circleId = params.circleId as string
+  const circleId = useRouteParam('circleId', 'circles')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (

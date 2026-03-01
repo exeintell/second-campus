@@ -20,7 +20,7 @@ export function useCircleDetail(circleId: string) {
   const [error, setError] = useState<string | null>(null)
 
   const fetchDetail = useCallback(async () => {
-    if (!circleId) return
+    if (!circleId || circleId === '_') return
 
     setLoading(true)
     setError(null)
