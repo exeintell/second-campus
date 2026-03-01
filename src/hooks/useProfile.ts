@@ -46,16 +46,22 @@ export function useProfile() {
   const uploadAvatar = async (file: File) => {
     if (!user) throw new Error('Not authenticated')
 
+    // Debug: check session
+    const { data: sessionData } = await supabase.auth.getSession()
+    console.log('[avatar] session:', sessionData.session ? 'valid' : 'null', 'user:', user.id)
+
     const ext = file.name.split('.').pop()
     const path = `${user.id}/avatar.${ext}`
 
     // Delete existing avatar first (ignore errors if not found)
-    await supabase.storage.from('avatars').remove([path])
+    const { error: removeError } = await supabase.storage.from('avatars').remove([path])
+    console.log('[avatar] remove:', removeError?.message ?? 'ok')
 
     // Upload new avatar
     const { error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(path, file)
+    console.log('[avatar] upload:', uploadError ? JSON.stringify(uploadError) : 'ok')
     if (uploadError) throw uploadError
 
     const { data: urlData } = supabase.storage
