@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useJoinRequests } from '@/hooks/useJoinRequests'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 
 interface JoinRequestListProps {
   circleId: string
@@ -65,11 +66,7 @@ export function JoinRequestList({ circleId }: JoinRequestListProps) {
             key={req.id}
             className="flex items-center gap-3 p-2 rounded-lg bg-white dark:bg-surface-900"
           >
-            <div className="w-8 h-8 bg-accent-100 dark:bg-accent-900 rounded-full flex items-center justify-center shrink-0">
-              <span className="text-accent-600 dark:text-accent-400 font-semibold text-xs">
-                {(req.users?.username || '?').charAt(0).toUpperCase()}
-              </span>
-            </div>
+            <UserAvatar username={req.users?.username} avatarUrl={req.users?.avatar_url} size="md" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
                 {req.users?.username || '名前未設定'}

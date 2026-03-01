@@ -92,10 +92,10 @@ export function useCircles() {
 
     if (memberError) throw memberError
 
-    // 3. Create default channel
+    // 3. Create default channel (trigger auto-adds creator to channel_members)
     const { error: channelError } = await supabase
       .from('channels')
-      .insert({ circle_id: circle.id, name: '一般', description: 'デフォルトチャンネル' })
+      .insert({ circle_id: circle.id, name: '一般', description: 'デフォルトチャンネル', is_default: true })
 
     if (channelError) throw channelError
 

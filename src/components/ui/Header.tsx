@@ -4,12 +4,15 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/hooks/useTheme'
+import { useProfile } from '@/hooks/useProfile'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { useState, useEffect } from 'react'
 
 export function Header() {
   const router = useRouter()
   const { user, loading, signOut } = useAuth()
-  const { theme, setTheme, isDark } = useTheme()
+  const { theme, setTheme } = useTheme()
+  const { username, avatarUrl } = useProfile()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -91,9 +94,12 @@ export function Header() {
 
             {user ? (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-neutral-500 dark:text-neutral-500 max-w-[140px] truncate">
-                  {user.email}
-                </span>
+                <Link href="/profile" className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-900 transition-colors">
+                  <UserAvatar username={username} avatarUrl={avatarUrl} size="xs" />
+                  <span className="text-xs text-neutral-700 dark:text-neutral-300 max-w-[120px] truncate font-medium">
+                    {username || user.email}
+                  </span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
@@ -154,7 +160,16 @@ export function Header() {
                   メッセージ
                 </Link>
                 <div className="border-t border-surface-200 dark:border-surface-800 mt-2 pt-2">
-                  <p className="px-3 py-1 text-xs text-neutral-500">{user.email}</p>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-surface-100 dark:hover:bg-surface-900 rounded-lg"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <UserAvatar username={username} avatarUrl={avatarUrl} size="xs" />
+                    <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                      {username || user.email}
+                    </span>
+                  </Link>
                   <button
                     onClick={() => { handleLogout(); setIsMenuOpen(false) }}
                     className="w-full text-left px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg"

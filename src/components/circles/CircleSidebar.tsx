@@ -10,9 +10,9 @@ import { CreateChannelDialog } from '@/components/channels/CreateChannelDialog'
 import { DeleteChannelDialog } from '@/components/channels/DeleteChannelDialog'
 
 export function CircleSidebar({ circleId }: { circleId: string }) {
-  const { circle, channels, loading, refetch } = useCircleContext()
+  const { circle, channels, myChannelIds, loading, refetch } = useCircleContext()
   const { user } = useAuth()
-  const { createChannel, deleteChannel } = useChannels()
+  const { createChannel, deleteChannel, joinChannel } = useChannels()
   const pathname = usePathname()
   const router = useRouter()
 
@@ -23,9 +23,14 @@ export function CircleSidebar({ circleId }: { circleId: string }) {
     id: string
     name: string
   } | null>(null)
+  const [joining, setJoining] = useState<string | null>(null)
 
-  const handleCreateChannel = async (name: string, description: string) => {
-    await createChannel(circleId, name, description)
+  const myChannelIdSet = new Set(myChannelIds)
+  const joinedChannels = channels.filter((c) => myChannelIdSet.has(c.id))
+  const otherChannels = channels.filter((c) => !myChannelIdSet.has(c.id) && !c.is_private)
+
+  const handleCreateChannel = async (name: string, description: string, isPrivate: boolean) => {
+    await createChannel(circleId, name, description, isPrivate)
     await refetch()
   }
 
@@ -34,10 +39,79 @@ export function CircleSidebar({ circleId }: { circleId: string }) {
     const deletedId = deleteTarget.id
     await deleteChannel(deletedId)
     await refetch()
-    // If currently viewing the deleted channel, navigate to circle overview
     if (pathname.includes(`/channels/${deletedId}`)) {
       router.push(`/circles/${circleId}`)
     }
+  }
+
+  const handleJoinChannel = async (channelId: string) => {
+    setJoining(channelId)
+    try {
+      await joinChannel(channelId)
+      await refetch()
+    } finally {
+      setJoining(null)
+    }
+  }
+
+  const renderChannelItem = (channel: typeof channels[0], showJoinButton: boolean = false) => {
+    const isActive = pathname === `/circles/${circleId}/channels/${channel.id}`
+    const isJoined = myChannelIdSet.has(channel.id)
+
+    return (
+      <div
+        key={channel.id}
+        className={`group flex items-center mx-2 px-2 py-1.5 rounded-md text-sm transition-colors ${
+          isActive
+            ? 'bg-accent-50 dark:bg-accent-950 text-accent-700 dark:text-accent-300 font-medium'
+            : 'text-neutral-600 dark:text-neutral-400 hover:bg-surface-100 dark:hover:bg-surface-900'
+        }`}
+      >
+        {isJoined ? (
+          <Link
+            href={`/circles/${circleId}/channels/${channel.id}`}
+            className="flex items-center gap-2 flex-1 min-w-0"
+          >
+            <span className="text-neutral-400">
+              {channel.is_private ? (
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              ) : '#'}
+            </span>
+            <span className="truncate">{channel.name}</span>
+          </Link>
+        ) : (
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span className="text-neutral-400">#</span>
+            <span className="truncate">{channel.name}</span>
+          </div>
+        )}
+        {showJoinButton && !isJoined && (
+          <button
+            onClick={() => handleJoinChannel(channel.id)}
+            disabled={joining === channel.id}
+            className="hidden group-hover:flex px-2 py-0.5 text-[10px] font-semibold bg-accent-500 hover:bg-accent-600 disabled:opacity-50 text-white rounded transition-colors shrink-0"
+          >
+            {joining === channel.id ? '...' : '参加'}
+          </button>
+        )}
+        {isOwner && isJoined && !channel.is_default && (
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              setDeleteTarget({ id: channel.id, name: channel.name })
+            }}
+            className="hidden group-hover:flex w-5 h-5 items-center justify-center rounded text-neutral-400 hover:text-red-500 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors shrink-0"
+            title="チャンネルを削除"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -58,9 +132,10 @@ export function CircleSidebar({ circleId }: { circleId: string }) {
 
       {/* Channels */}
       <div className="flex-1 overflow-y-auto py-2">
+        {/* Joined Channels */}
         <div className="px-3 mb-1 flex items-center justify-between">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
-            チャンネル
+            参加中
           </span>
           {isOwner && (
             <button
@@ -74,42 +149,19 @@ export function CircleSidebar({ circleId }: { circleId: string }) {
             </button>
           )}
         </div>
-        {channels.map((channel) => {
-          const isActive =
-            pathname === `/circles/${circleId}/channels/${channel.id}`
-          return (
-            <div
-              key={channel.id}
-              className={`group flex items-center mx-2 px-2 py-1.5 rounded-md text-sm transition-colors ${
-                isActive
-                  ? 'bg-accent-50 dark:bg-accent-950 text-accent-700 dark:text-accent-300 font-medium'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-surface-100 dark:hover:bg-surface-900'
-              }`}
-            >
-              <Link
-                href={`/circles/${circleId}/channels/${channel.id}`}
-                className="flex items-center gap-2 flex-1 min-w-0"
-              >
-                <span className="text-neutral-400">#</span>
-                <span className="truncate">{channel.name}</span>
-              </Link>
-              {isOwner && channels.length > 1 && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setDeleteTarget({ id: channel.id, name: channel.name })
-                  }}
-                  className="hidden group-hover:flex w-5 h-5 items-center justify-center rounded text-neutral-400 hover:text-red-500 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors shrink-0"
-                  title="チャンネルを削除"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
+        {joinedChannels.map((channel) => renderChannelItem(channel))}
+
+        {/* Other Public Channels */}
+        {otherChannels.length > 0 && (
+          <>
+            <div className="px-3 mt-4 mb-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+                チャンネル一覧
+              </span>
             </div>
-          )
-        })}
+            {otherChannels.map((channel) => renderChannelItem(channel, true))}
+          </>
+        )}
       </div>
 
       {/* Back Link */}

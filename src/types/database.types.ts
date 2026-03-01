@@ -12,14 +12,129 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.4"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
+      channel_join_requests: {
+        Row: {
+          channel_id: string
+          created_at: string
+          id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_join_requests_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_join_requests_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_join_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_members: {
+        Row: {
+          channel_id: string
+          id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          id?: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_members_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       channels: {
         Row: {
           circle_id: string
           created_at: string | null
           description: string | null
           id: string
+          is_default: boolean
+          is_private: boolean
           name: string
           updated_at: string | null
         }
@@ -28,6 +143,8 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_default?: boolean
+          is_private?: boolean
           name: string
           updated_at?: string | null
         }
@@ -36,6 +153,8 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_default?: boolean
+          is_private?: boolean
           name?: string
           updated_at?: string | null
         }
@@ -452,10 +571,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_channel_join_request: {
+        Args: { p_request_id: string }
+        Returns: undefined
+      }
       approve_join_request: { Args: { request_id: string }; Returns: undefined }
       get_circle_member_user_ids: { Args: never; Returns: string[] }
       get_my_admin_circle_ids: { Args: never; Returns: string[] }
+      get_my_channel_ids: { Args: never; Returns: string[] }
       get_my_circle_ids: { Args: never; Returns: string[] }
+      invite_to_channel: {
+        Args: { p_channel_id: string; p_user_id: string }
+        Returns: undefined
+      }
       join_circle_by_code: { Args: { code: string }; Returns: string }
     }
     Enums: {
@@ -585,6 +713,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

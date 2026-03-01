@@ -5,7 +5,7 @@ import { useState } from 'react'
 interface CreateChannelDialogProps {
   open: boolean
   onClose: () => void
-  onSubmit: (name: string, description: string) => Promise<unknown>
+  onSubmit: (name: string, description: string, isPrivate: boolean) => Promise<unknown>
 }
 
 export function CreateChannelDialog({
@@ -15,6 +15,7 @@ export function CreateChannelDialog({
 }: CreateChannelDialogProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [isPrivate, setIsPrivate] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,9 +29,10 @@ export function CreateChannelDialog({
     setError(null)
 
     try {
-      await onSubmit(name.trim(), description.trim())
+      await onSubmit(name.trim(), description.trim(), isPrivate)
       setName('')
       setDescription('')
+      setIsPrivate(false)
       onClose()
     } catch (err: unknown) {
       const message =
@@ -75,6 +77,31 @@ export function CreateChannelDialog({
               rows={3}
               className="w-full px-3 py-2.5 bg-surface-50 dark:bg-surface-950 border border-surface-200 dark:border-surface-800 rounded-lg text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-600 focus:border-accent-500 focus:ring-1 focus:ring-accent-500/20 transition-all outline-none resize-none"
             />
+          </div>
+
+          {/* Private Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                プライベートチャンネル
+              </p>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                招待または承認されたメンバーのみ参加可能
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsPrivate(!isPrivate)}
+              className={`relative w-10 h-5.5 rounded-full transition-colors ${
+                isPrivate ? 'bg-accent-500' : 'bg-surface-300 dark:bg-surface-700'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-4.5 h-4.5 bg-white rounded-full shadow transition-transform ${
+                  isPrivate ? 'translate-x-[18px]' : ''
+                }`}
+              />
+            </button>
           </div>
 
           {error && <p className="text-sm text-red-500">{error}</p>}

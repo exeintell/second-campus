@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useConversations } from '@/hooks/useConversations'
 import { useRealtimeDMMessages } from '@/hooks/useRealtimeDMMessages'
 import { useSendDMMessage } from '@/hooks/useSendDMMessage'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 
 export default function DMPage() {
   const { user } = useAuth()
@@ -103,11 +104,7 @@ export default function DMPage() {
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 bg-accent-100 dark:bg-accent-900 rounded-full flex items-center justify-center shrink-0">
-                      <span className="text-accent-600 dark:text-accent-400 font-semibold text-xs">
-                        {(conv.partner.username || '?').charAt(0).toUpperCase()}
-                      </span>
-                    </div>
+                    <UserAvatar username={conv.partner.username} avatarUrl={conv.partner.avatar_url} size="md" />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-baseline">
                         <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
@@ -146,11 +143,7 @@ export default function DMPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                <div className="w-8 h-8 bg-accent-100 dark:bg-accent-900 rounded-full flex items-center justify-center shrink-0">
-                  <span className="text-accent-600 dark:text-accent-400 font-semibold text-xs">
-                    {(selectedConversation.partner.username || '?').charAt(0).toUpperCase()}
-                  </span>
-                </div>
+                <UserAvatar username={selectedConversation.partner.username} avatarUrl={selectedConversation.partner.avatar_url} size="md" />
                 <div>
                   <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
                     {selectedConversation.partner.username || '名前未設定'}

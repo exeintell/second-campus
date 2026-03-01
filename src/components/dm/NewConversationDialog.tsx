@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 
 interface UserOption {
   id: string
@@ -147,11 +148,7 @@ export function NewConversationDialog({
                 disabled={selecting}
                 className="w-full flex items-center gap-3 p-3 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors disabled:opacity-50"
               >
-                <div className="w-8 h-8 bg-accent-100 dark:bg-accent-900 rounded-full flex items-center justify-center shrink-0">
-                  <span className="text-accent-600 dark:text-accent-400 font-semibold text-xs">
-                    {(u.username || '?').charAt(0).toUpperCase()}
-                  </span>
-                </div>
+                <UserAvatar username={u.username} avatarUrl={u.avatar_url} size="md" />
                 <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
                   {u.username || '名前未設定'}
                 </span>

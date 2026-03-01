@@ -1,4 +1,5 @@
 import type { ChatMessage } from '@/types/chat'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 
 interface MessageItemProps {
   message: ChatMessage
@@ -15,11 +16,7 @@ export function MessageItem({ message, isOwn }: MessageItemProps) {
     <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
       <div className={`max-w-[70%] ${isOwn ? 'flex items-end gap-1.5 flex-row-reverse' : 'flex gap-2'}`}>
         {!isOwn && (
-          <div className="w-7 h-7 bg-accent-100 dark:bg-accent-900 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-            <span className="text-accent-600 dark:text-accent-400 font-semibold text-[10px]">
-              {(message.users?.username || '?').charAt(0).toUpperCase()}
-            </span>
-          </div>
+          <UserAvatar username={message.users?.username} avatarUrl={message.users?.avatar_url} size="sm" className="mt-0.5" />
         )}
         <div className={`flex items-end gap-1.5 ${isOwn ? 'flex-row-reverse' : ''}`}>
           <div>

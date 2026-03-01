@@ -12,6 +12,7 @@ interface CircleContextType {
   circle: Circle | null
   channels: Channel[]
   members: MemberWithUser[]
+  myChannelIds: string[]
   loading: boolean
   error: string | null
   refetch: () => Promise<void>

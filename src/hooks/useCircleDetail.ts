@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from './useAuth'
 import type { Database } from '@/types/database.types'
 
 type Circle = Database['public']['Tables']['circles']['Row']
@@ -13,9 +14,11 @@ export type MemberWithUser = CircleMember & {
 }
 
 export function useCircleDetail(circleId: string) {
+  const { user } = useAuth()
   const [circle, setCircle] = useState<Circle | null>(null)
   const [channels, setChannels] = useState<Channel[]>([])
   const [members, setMembers] = useState<MemberWithUser[]>([])
+  const [myChannelIds, setMyChannelIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,7 +28,7 @@ export function useCircleDetail(circleId: string) {
     setLoading(true)
     setError(null)
 
-    const [circleResult, channelsResult, membersResult] = await Promise.all([
+    const [circleResult, channelsResult, membersResult, myChannelsResult] = await Promise.all([
       supabase.from('circles').select('*').eq('id', circleId).single(),
       supabase
         .from('channels')
@@ -37,6 +40,12 @@ export function useCircleDetail(circleId: string) {
         .select('*, users(username, avatar_url)')
         .eq('circle_id', circleId)
         .order('joined_at'),
+      user
+        ? supabase
+            .from('channel_members')
+            .select('channel_id')
+            .eq('user_id', user.id)
+        : Promise.resolve({ data: null }),
     ])
 
     if (circleResult.error) {
@@ -48,12 +57,18 @@ export function useCircleDetail(circleId: string) {
     setCircle(circleResult.data)
     setChannels(channelsResult.data || [])
     setMembers((membersResult.data as unknown as MemberWithUser[]) || [])
+
+    // Filter to only channel IDs in this circle
+    const allMyChannelIds = (myChannelsResult.data || []).map((r) => r.channel_id)
+    const circleChannelIds = new Set((channelsResult.data || []).map((c) => c.id))
+    setMyChannelIds(allMyChannelIds.filter((id) => circleChannelIds.has(id)))
+
     setLoading(false)
-  }, [circleId])
+  }, [circleId, user])
 
   useEffect(() => {
     fetchDetail()
   }, [fetchDetail])
 
-  return { circle, channels, members, loading, error, refetch: fetchDetail }
+  return { circle, channels, members, myChannelIds, loading, error, refetch: fetchDetail }
 }
