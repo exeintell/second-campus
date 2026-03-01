@@ -49,9 +49,13 @@ export function useProfile() {
     const ext = file.name.split('.').pop()
     const path = `${user.id}/avatar.${ext}`
 
+    // Delete existing avatar first (ignore errors if not found)
+    await supabase.storage.from('avatars').remove([path])
+
+    // Upload new avatar
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(path, file, { upsert: true })
+      .upload(path, file)
     if (uploadError) throw uploadError
 
     const { data: urlData } = supabase.storage
