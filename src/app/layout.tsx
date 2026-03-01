@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Header } from "@/components/ui/Header";
+import { SPARedirectHandler } from "@/components/SPARedirectHandler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +47,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AuthProvider>
+            <SPARedirectHandler />
             <Header />
             {children}
           </AuthProvider>

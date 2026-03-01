@@ -37,7 +37,12 @@ jobs:
 
       - name: Add SPA fallback and .nojekyll
         run: |
-          cp out/index.html out/404.html
+          cat > out/404.html << 'HTMLEOF'
+          <!DOCTYPE html><html><head><meta charset="utf-8"><script>
+          sessionStorage.setItem('__spa_redirect', location.pathname + location.search + location.hash);
+          location.replace('/second-campus/');
+          </script></head><body></body></html>
+          HTMLEOF
           touch out/.nojekyll
 
       - uses: actions/upload-pages-artifact@v3
