@@ -11,13 +11,19 @@ export function JoinRequestList({ circleId }: JoinRequestListProps) {
   const { requests, loading, approveRequest, rejectRequest } =
     useJoinRequests(circleId)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const handleApprove = async (requestId: string) => {
     setProcessing(requestId)
+    setError(null)
     try {
       await approveRequest(requestId)
-    } catch {
-      // ignore
+    } catch (err: unknown) {
+      const msg =
+        typeof err === 'object' && err !== null && 'message' in err
+          ? (err as { message: string }).message
+          : '承認に失敗しました'
+      setError(msg)
     } finally {
       setProcessing(null)
     }
@@ -25,10 +31,15 @@ export function JoinRequestList({ circleId }: JoinRequestListProps) {
 
   const handleReject = async (requestId: string) => {
     setProcessing(requestId)
+    setError(null)
     try {
       await rejectRequest(requestId)
-    } catch {
-      // ignore
+    } catch (err: unknown) {
+      const msg =
+        typeof err === 'object' && err !== null && 'message' in err
+          ? (err as { message: string }).message
+          : '却下に失敗しました'
+      setError(msg)
     } finally {
       setProcessing(null)
     }
@@ -45,6 +56,9 @@ export function JoinRequestList({ circleId }: JoinRequestListProps) {
           {requests.length}
         </span>
       </h3>
+      {error && (
+        <p className="text-xs text-red-500 mb-2">{error}</p>
+      )}
       <div className="space-y-2">
         {requests.map((req) => (
           <div
