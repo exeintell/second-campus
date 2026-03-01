@@ -43,7 +43,7 @@ export default function CircleLayoutClient({
                 />
               </svg>
             </button>
-            <CircleSidebar circleId={circleId} />
+            <CircleSidebar circleId={circleId} onNavigate={() => setSidebarOpen(false)} />
           </aside>
 
           {/* Mobile sidebar backdrop */}
