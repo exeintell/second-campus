@@ -72,6 +72,13 @@ export function useProfile() {
     })
     console.log('[avatar] list files:', listRes.status, await listRes.text())
 
+    // Test: minimal blob upload
+    const testBlob = new Blob(['hello'], { type: 'text/plain' })
+    const { error: testErr } = await supabase.storage
+      .from('avatars')
+      .upload(`${user.id}/test.txt`, testBlob, { upsert: true })
+    console.log('[avatar] test blob upload:', testErr ? JSON.stringify(testErr) : 'ok')
+
     const ext = file.name.split('.').pop()
     const path = `${user.id}/avatar.${ext}`
 
