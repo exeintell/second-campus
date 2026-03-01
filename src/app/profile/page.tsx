@@ -42,8 +42,8 @@ function ProfileContent() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.size > 2 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'ファイルサイズは2MB以下にしてください' })
+    if (file.size > 10 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'ファイルサイズは10MB以下にしてください' })
       return
     }
 
