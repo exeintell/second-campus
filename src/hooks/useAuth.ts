@@ -76,7 +76,6 @@ export function useAuthState() {
         data: {
           username,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     })
 
