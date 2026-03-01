@@ -50,9 +50,10 @@ export function useProfile() {
     const token = sessionData.session?.access_token
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    console.log('[avatar] url:', supabaseUrl)
-    console.log('[avatar] anon key:', anonKey?.slice(0, 20) + '...')
-    console.log('[avatar] token:', token?.slice(0, 20) + '...')
+    const header = token ? JSON.parse(atob(token.split('.')[0])) : null
+    const payload = token ? JSON.parse(atob(token.split('.')[1])) : null
+    console.log('[avatar] jwt header:', JSON.stringify(header))
+    console.log('[avatar] jwt payload role:', payload?.role, 'iss:', payload?.iss)
 
     // Test: can user list buckets?
     const bucketsRes = await fetch(`${supabaseUrl}/storage/v1/bucket`, {
