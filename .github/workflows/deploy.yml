@@ -39,8 +39,20 @@ jobs:
         run: |
           cat > out/404.html << 'HTMLEOF'
           <!DOCTYPE html><html><head><meta charset="utf-8"><script>
-          sessionStorage.setItem('__spa_redirect', location.pathname + location.search + location.hash);
-          location.replace('/second-campus/');
+          (function(){
+            var bp='/second-campus';
+            var p=location.pathname.replace(/\/$/,'');
+            var rel=p.replace(bp,'');
+            var uuid=/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+            if(uuid.test(rel)){
+              uuid.lastIndex=0;
+              var rewritten=rel.replace(uuid,'_');
+              sessionStorage.setItem('__spa_url',p+location.search+location.hash);
+              location.replace(bp+rewritten);
+            }else{
+              location.replace(bp+'/');
+            }
+          })();
           </script></head><body></body></html>
           HTMLEOF
           touch out/.nojekyll

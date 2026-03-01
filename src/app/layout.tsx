@@ -35,6 +35,12 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
+        {/* SPA redirect: restore real URL before React hydrates (GitHub Pages) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var r=sessionStorage.getItem('__spa_url');if(r){sessionStorage.removeItem('__spa_url');history.replaceState(null,'',r)}})()`,
+          }}
+        />
         {/* Prevent FOUC: apply dark class before React hydrates */}
         <script
           dangerouslySetInnerHTML={{
