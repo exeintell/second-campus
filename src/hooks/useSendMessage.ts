@@ -10,7 +10,7 @@ export function useSendMessage(channelId: string) {
 
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!user || !content.trim()) return
+      if (!user || !content.trim() || !channelId || channelId === '_') return
 
       setSending(true)
       const { error } = await supabase.from('messages').insert({

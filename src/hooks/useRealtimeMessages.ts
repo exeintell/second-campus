@@ -17,6 +17,8 @@ export function useRealtimeMessages(channelId: string) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!channelId || channelId === '_') return
+
     // Fetch initial messages with user info
     const fetchMessages = async () => {
       const { data, error: fetchError } = await supabase
