@@ -36,6 +36,9 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#22c55e" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         {/* SPA redirect: restore real URL before React hydrates (GitHub Pages) */}
         <script
           dangerouslySetInnerHTML={{

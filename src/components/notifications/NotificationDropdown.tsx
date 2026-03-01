@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { useNotificationContext } from '@/hooks/useNotifications'
 import { NotificationItem } from './NotificationItem'
+import { PushNotificationToggle } from './PushNotificationToggle'
 
 interface NotificationDropdownProps {
   onClose: () => void
@@ -73,6 +74,11 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Push notification toggle */}
+      <div className="border-t border-surface-200 dark:border-surface-800">
+        <PushNotificationToggle />
       </div>
     </div>
   )

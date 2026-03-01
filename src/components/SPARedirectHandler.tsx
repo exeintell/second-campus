@@ -4,11 +4,12 @@ import { useEffect } from 'react'
 
 export function SPARedirectHandler() {
   useEffect(() => {
-    // Register Service Worker for GitHub Pages SPA support (client-side navigation)
-    if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
-      navigator.serviceWorker.register(
-        `${window.location.pathname.startsWith('/second-campus') ? '/second-campus' : ''}/sw.js`
-      )
+    // Register Service Worker for SPA support + push notifications
+    if ('serviceWorker' in navigator) {
+      const swPath = window.location.hostname !== 'localhost' && window.location.pathname.startsWith('/second-campus')
+        ? '/second-campus/sw.js'
+        : '/sw.js'
+      navigator.serviceWorker.register(swPath)
     }
   }, [])
 
